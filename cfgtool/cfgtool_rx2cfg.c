@@ -107,7 +107,7 @@ typedef struct PORT_CFG_s
 
 static bool _portCfgStr(const PORT_CFG_t *cfg, const CFG_DB_t *db, char *str, const int size);
 static bool _rateCfgStr(const UBLOXCFG_MSGRATE_t *cfg, const CFG_DB_t *db, char *str, const int size);
-static bool _itemCfgStr(const UBLOXCFG_KEYVAL_t *kv, const UBLOXCFG_ITEM_t *item, char *str, const int size);
+static bool _itemCfgStr(const UBLOXCFG_KEYVAL_t *kv, const UBLOXCFG_ITEM_t *item, char str[], const int size);
 
 int rx2cfgRun(const char *portArg, const char *layerArg, const bool useUnknownItems, const bool extraInfo)
 {
@@ -316,8 +316,10 @@ int rx2cfgRun(const char *portArg, const char *layerArg, const bool useUnknownIt
         }
 
         char cfgStrLayer[UBLOXCFG_MAX_KEYVAL_STR_SIZE];
+        memset(cfgStrLayer, 0, UBLOXCFG_MAX_KEYVAL_STR_SIZE);
         const bool haveCfgStrLayer = _itemCfgStr(kvLayer, item, cfgStrLayer, sizeof(cfgStrLayer));
         char cfgStrDefault[UBLOXCFG_MAX_KEYVAL_STR_SIZE];
+        memset(cfgStrDefault, 0, UBLOXCFG_MAX_KEYVAL_STR_SIZE);
         const bool haveCfgStrDefault = _itemCfgStr(kvDefault, item, cfgStrDefault, sizeof(cfgStrDefault));
         if (!haveCfgStrLayer || !haveCfgStrDefault)
         {
@@ -704,7 +706,7 @@ static bool _rateCfgStr(const UBLOXCFG_MSGRATE_t *cfg, const CFG_DB_t *db, char 
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-static bool _itemCfgStr(const UBLOXCFG_KEYVAL_t *kv, const UBLOXCFG_ITEM_t *item, char *str, const int size)
+static bool _itemCfgStr(const UBLOXCFG_KEYVAL_t *kv, const UBLOXCFG_ITEM_t *item, char str[], const int size)
 {
     UBLOXCFG_TYPE_t type = item != NULL ? item->type : UBLOXCFG_TYPE_X8;
     if (item == NULL)
@@ -739,7 +741,14 @@ static bool _itemCfgStr(const UBLOXCFG_KEYVAL_t *kv, const UBLOXCFG_ITEM_t *item
     char *prettyStr;
     if (ubloxcfg_splitValueStr(str, &valueStr, &prettyStr) && (prettyStr != NULL))
     {
+#if defined(__APPLE__)
+        // Apple's C library is more strict about source and destination being non-identical.
+        char tmp[strlen(prettyStr)];
+        strcpy(tmp, prettyStr);
+        strcpy(str, tmp);
+#else
         strcpy(str, prettyStr);
+#endif
     }
 
     return true;

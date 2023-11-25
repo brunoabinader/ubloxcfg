@@ -26,11 +26,16 @@ extern "C" {
 
 /* ****************************************************************************************************************** */
 
+#if defined(__APPLE__)
+#define PORT_BAUDRATES      9600,  19200,  38400,  57600,  115200
+#define PORT_BAUDVALUES    B9600, B19200, B38400, B57600, B115200
+#else
 #define PORT_BAUDRATES      9600,  19200,  38400,  57600,  115200,  230400,  460800,  921600
 #ifdef _WIN32
 #  define PORT_BAUDVALUES   9600,  19200,  38400,  57600,  115200,  230400,  460800,  921600
 #else
 #  define PORT_BAUDVALUES  B9600, B19200, B38400, B57600, B115200, B230400, B460800, B921600
+#endif
 #endif
 
 #define PORT_SPEC_MAX_LEN 256

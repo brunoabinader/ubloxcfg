@@ -22,7 +22,11 @@
 #include <cstring>
 #include <unordered_map>
 
+#if defined(__APPLE__)
+#include <pthread.h>
+#else
 #include <sys/prctl.h>
+#endif
 
 #include "ff_debug.h"
 
@@ -122,6 +126,9 @@ const std::string &Ff::Thread::GetName()
 void Ff::Thread::_Thread()
 {
     {
+#if defined(__APPLE__)
+        pthread_setname_np(_name.c_str());
+#else
         char currName[16];
         char threadName[32]; // max 16 cf. prctl(2)
         currName[0] = '\0';
@@ -131,6 +138,7 @@ void Ff::Thread::_Thread()
             std::snprintf(threadName, sizeof(threadName), "%s:%s", currName, _name.c_str());
             prctl(PR_SET_NAME, threadName, 0, 0, 0);
         }
+#endif
     }
 
     DEBUG("%s thread start", _name.c_str());
