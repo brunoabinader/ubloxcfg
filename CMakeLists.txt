@@ -36,7 +36,7 @@ add_custom_command(
 
 #### ubloxcfg library
 
-add_library(ubloxcfg SHARED)
+add_library(ubloxcfg STATIC)
 add_dependencies(ubloxcfg config_h ubloxcfg_gen)
 target_sources(ubloxcfg
     PRIVATE
@@ -44,12 +44,12 @@ target_sources(ubloxcfg
     ${CMAKE_BINARY_DIR}/ubloxcfg_gen.c
 )
 target_compile_options(ubloxcfg PRIVATE -fPIC)
-target_link_options(ubloxcfg PRIVATE -lm)
+target_link_options(ubloxcfg PUBLIC -lm)
 target_include_directories(ubloxcfg PRIVATE ubloxcfg ${CMAKE_BINARY_DIR})
 
 #### FF library
 
-add_library(ff SHARED)
+add_library(ff STATIC)
 add_dependencies(ubloxcfg config_h)
 target_sources(ff
     PRIVATE
@@ -69,6 +69,7 @@ target_sources(ff
     ff/ff_ubx.c
 )
 target_link_libraries(ff PRIVATE ubloxcfg)
+target_link_options(ff PUBLIC -lm)
 target_include_directories(ff PRIVATE ${CMAKE_BINARY_DIR} ubloxcfg)
 
 #### cfgtool application
